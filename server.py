@@ -5,7 +5,7 @@
 
 from socket import *
 import threading 
-
+import time as tm
 class Server:
     """"""
 
@@ -20,36 +20,63 @@ class Server:
         self.connection, self.addr = self.socket.accept()
         print("Chat running...")
 
-    def recMessage(self):
+
+    def recMessage(self, internal=False):
         while True:
             request = self.connection.recv(1024)
             requestDecoded = request.decode()
+            #print(requestDecoded)
+            if requestDecoded[:2] == '\q':
+                exit()
+            if requestDecoded[:5] == '\game':
+                self.networkingTrivia()
             clientMessage = f"\nClient: {requestDecoded}"
             print(f"\033[34m {clientMessage}\033[00m")
-            return 
+            if internal:
+                return requestDecoded
          
 
-    def sendMessage(self):
+    def sendMessage(self,msg=None):
         ## old version
-
-        while True: #This reprints the entry 
-            print(">",end='')
-            msg = input()#"\nServer: ")
+        if msg:
             msg += "\n"
-            # print("Server:",response)
             self.connection.send(msg.encode()) # Send response per instructions 
+            return
+        else:
+            while True: #This reprints the entry 
+                msg = input()#"\nServer: ")
+                msg += "\n"
+                self.connection.send(msg.encode()) # Send response per instructions 
  
 
+    def networkingTrivia(self):
+        self.sendMessage("Welcome to networking trivia")
+        score = 0
+        questions = 0 
+        qAndA = {   'TCP is a connection-oriented service [T/F]':['true','t'],
+                    'UDP is a \"fire and forget\" type of service [T/F]:':['true','t']}
+        for question, answers in qAndA.items():
+            print(question) # send message
+            self.sendMessage(question)
+            #answer = input("Answer: ").lower() # take response 
+            answer = self.recMessage(True)
+            answer = answer[:answer.find("\r")].lower()
+            if answer in answers:
+                score += 1
+                questions += 1
+                print("Correct!") # send message
+                self.sendMessage("Correct")
+            else:
+                questions += 1
+                message = f"incorrect. acceptable answers are {[str(i) for i in answers]}"
+                print(message) # send message
+                self.sendMessage(message)
+        message = f"Score: {(score/questions)*100}%"
+        print(message) # send message 
+        self.sendMessage(message)
+        return 
 
-        # new version
-        # totalsent = 0
-        # length = str((len(msg) + 4)).zfill(4) # pads with leading 0's
-        # msg = length + msg
-        # while totalsent < len(msg):
-        #     sent = self.socket.send(msg[totalsent:].encode())
-        #     if sent == 0:
-        #         raise RuntimeError("socket connection broken")
-        #     totalsent = totalsent + sent
+        
         
 if __name__ == "__main__":
     myServer = Server('localhost',12000)
@@ -71,11 +98,4 @@ if __name__ == "__main__":
     backgroundRec.start()
 
 
-
-        # send 
-
-        # serverMessage = myServer.sendMessage()
-        # if serverMessage:
-        #     print(serverMessage)
-    
 
