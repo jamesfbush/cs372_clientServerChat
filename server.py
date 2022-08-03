@@ -1,12 +1,14 @@
 # Author:       James Bush
 # Date:         2022-08-02
 # Description:  Implementation of project 4 per instructions. 
-# Sources:      
+# Sources:      https://www.geeksforgeeks.org/python-remove-spaces-from-a-string/
 
 from socket import *
 import threading 
 import time as tm
 import random 
+
+
 class Server:
     """"""
 
@@ -32,7 +34,8 @@ class Server:
             if requestDecoded[:5] == '\game':
                 self.networkingTrivia()
             clientMessage = f"\nClient: {requestDecoded}"
-            print(f"\033[34m {clientMessage}\033[00m")
+            # print(f"\033[34m {clientMessage}\033[00m")
+            print(self.strColor(clientMessage,'blue'))
             if internal:
                 return requestDecoded
          
@@ -50,28 +53,33 @@ class Server:
                 self.connection.send(msg.encode()) # Send response per instructions 
  
 
+    def strColor(self,string,color):
+        colors = {  
+            'blue':str(34),
+            'red':str(91)
+        }
+        return f"\033[{colors[color]}m {string}\033[00m"
+
     def networkingTriviaQA(self):
         
-
-        questionAnsBank = [ ['TCP is a connection-oriented service [T/F]',['true','t']],
-                            ['UDP is a \"fire and forget\" type of service [T/F]:',['true','t']],
-                            ['Mobile phone operate at network core [T/F]',['false','f']]        
+        questionAnsBank = [ 
+            ['TCP is a connection-oriented service [T/F]\n',['true','t']],
+            ['UDP is a \"fire and forget\" type of service [T/F]:\n',['true','t']],
+            ['Mobile phone operate at network core [T/F]\n',['false','f']]        
         ]
-        index = random.randint(0, len(questionAnsBank)-1)
-        print("INDEX",index)
-        return questionAnsBank[index]
+        return questionAnsBank[random.randint(0, len(questionAnsBank)-1)]
 
     def networkingTrivia(self):
-        self.sendMessage("Welcome to networking trivia")
+        self.sendMessage(f"{'*'*30}\nWelcome to networking trivia")
         score = 0
         questions = 0 
-        rounds = 5
         # qAndA = {   'TCP is a connection-oriented service [T/F]':['true','t'],
         #             'UDP is a \"fire and forget\" type of service [T/F]:':['true','t']}
         
         qAndA = self.networkingTriviaQA()
+        # need support or asked questions
 
-        for i in range(rounds):
+        while True:
             qAndA = self.networkingTriviaQA()
             question = qAndA[0]
             answers = qAndA[1]
@@ -80,7 +88,9 @@ class Server:
             #answer = input("Answer: ").lower() # take response 
             answer = self.recMessage(True)
             answer = answer[:answer.find("\r")].lower()
-            if answer in answers:
+            if answer == "\stop":
+                break
+            elif answer in answers:
                 score += 1
                 questions += 1
                 print("Correct!") # send message
@@ -88,7 +98,7 @@ class Server:
             else:
                 questions += 1
                 message = f"incorrect. acceptable answers are {[str(i) for i in answers]}"
-                print(message) # send message
+                print(self.strColor(message,'red')) # send message
                 self.sendMessage(message)
         message = f"Score: {(score/questions)*100}%"
         print(message) # send message 
