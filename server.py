@@ -6,6 +6,7 @@
 from socket import *
 import threading 
 import time as tm
+import random 
 class Server:
     """"""
 
@@ -49,13 +50,31 @@ class Server:
                 self.connection.send(msg.encode()) # Send response per instructions 
  
 
+    def networkingTriviaQA(self):
+        
+
+        questionAnsBank = [ ['TCP is a connection-oriented service [T/F]',['true','t']],
+                            ['UDP is a \"fire and forget\" type of service [T/F]:',['true','t']],
+                            ['Mobile phone operate at network core [T/F]',['false','f']]        
+        ]
+        index = random.randint(0, len(questionAnsBank)-1)
+        print("INDEX",index)
+        return questionAnsBank[index]
+
     def networkingTrivia(self):
         self.sendMessage("Welcome to networking trivia")
         score = 0
         questions = 0 
-        qAndA = {   'TCP is a connection-oriented service [T/F]':['true','t'],
-                    'UDP is a \"fire and forget\" type of service [T/F]:':['true','t']}
-        for question, answers in qAndA.items():
+        rounds = 5
+        # qAndA = {   'TCP is a connection-oriented service [T/F]':['true','t'],
+        #             'UDP is a \"fire and forget\" type of service [T/F]:':['true','t']}
+        
+        qAndA = self.networkingTriviaQA()
+
+        for i in range(rounds):
+            qAndA = self.networkingTriviaQA()
+            question = qAndA[0]
+            answers = qAndA[1]
             print(question) # send message
             self.sendMessage(question)
             #answer = input("Answer: ").lower() # take response 
