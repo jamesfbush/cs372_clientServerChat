@@ -1,7 +1,8 @@
-# Author:        James Bush
-# Date:          2022-08-04
-# Description:   Implementation of server-client chat per instructions.
-# Sources:       https://docs.python.org/3/howto/sockets.html
+# Author:       James Bush
+# Date:         2022-08-04
+# Description:  Implementation of server-client chat per instructions.
+# Sources:      https://docs.python.org/3/howto/sockets.html
+#               https://realpython.com/python-sockets/
 
 from socket import *
 import random
@@ -19,13 +20,15 @@ class MySocket:
             self.sock.bind((host, port))
             self.sock.listen(1) # 1? 5? 
             self.clientConnection, self.addr = self.sock.accept()
-            print("Connected to chat!")            
-
+  
         elif role == 'client':
             self.role = role
             self.sock = socket(AF_INET, SOCK_STREAM)
             self.sock.connect((host, port))
             self.clientConnection = self.sock # the connection is itself 
+        
+        self.welcome(self.role)
+
 
     def sendMsg(self, msg):
         """Send string with header indicating length of string.
@@ -63,6 +66,13 @@ class MySocket:
         # return message
         return b''.join(newChunks).decode()
 
+    def welcome(self, role):
+        print(f"{'='*40}\nConnected to chat!\nType '/q' to quit/exit.\n{'='*40}")
+        if role == 'server':
+            print("Waiting on message from client...\n")
+        else:
+            print("Your turn to send message to server.\n")
+
     def getCorrespondent(self):
         """Return correspondent entity name."""
         return [i for i in ['server','client'] if i != self.role][0].capitalize()
@@ -83,7 +93,16 @@ class MySocket:
         questionAnsBank = [ 
             ['TCP is a connection-oriented service [T/F]\n',['true','t']],
             ['UDP is a \"fire and forget\" type of service [T/F]:\n',['true','t']],
-            ['Mobile phone operate at network core [T/F]\n',['false','f']]        
+            ['Mobile phones operate at network core [T/F]\n',['false','f']],
+            ['At the transport layer, what is the payload?\
+                \n1. application data\n2. transport data',['1','application data']],
+            ['In the Internet protocol stack, the Application Layer is responsible for assembling user data to be sent [T/F]',['true','t']],
+            ['If I were to send information into the internet with your IP address listed as the sender IP, I would be:\
+                \n1. executing DDoS\n2. spoofing',['2','spoof','spoofing']],
+            [' A paired IP address and port number is called a:\n1. router\n2. socket',['2','socket']],
+            ['In a ______ architecture, one host is always on, and other hosts may connect\
+                and be continually serviced by this first host.\
+                    \n1. hybrid\n2. client-server\n3. peer-to-peer',['2', 'client-server']]      
         ]
         return questionAnsBank[random.randint(0, len(questionAnsBank)-1)]
 
@@ -140,7 +159,7 @@ class MySocket:
             score = round((score/questions),3)*100
         elif questions == 0:
             score = 0
-        message = f"\n{'*'*40}\nScore: {score}%\nThanks for playing Network Trivia!\n{'*'*40}\n"
+        message = f"\n{'*'*40}\nQuestions: {questions} Score: {score}%\nThanks for playing Network Trivia!\n{'*'*40}\n"
         print(message) 
         self.sendMsg(message)
         return
@@ -150,21 +169,30 @@ if __name__ == "__main__":
     chatConnection = MySocket('server')
     correspondent = chatConnection.getCorrespondent()
 
-    # Loop will permit basic, turn-oriented chat
+    # Main chat loop -- will permit basic, turn-oriented chat
     while True:
-            #correspondent = [i for i in ['server','client'] if i != chatConnection.role][0].capitalize()
-            msgRec = chatConnection.receiveMsg()#.decode()
-            # close connection if /q in message 
+
+            # Server waits on message from client
+            msgRec = chatConnection.receiveMsg()
+
+            # Close connection if /q in message from client
             if '/q' in msgRec:
                 print("Exiting...")
                 chatConnection.sock.close()
                 break
+
             # EXTRA CREDIT - start game if /game in message
             if '/game' in msgRec:
                 chatConnection.networkingTrivia()
+
+            # Normal message send
             else:
                 print(f"\n{correspondent}: {msgRec}\n")
-                reply = input("> ")
-                chatConnection.sendMsg(reply)
+                msgSend = input("> ")
 
+                chatConnection.sendMsg(msgSend)
 
+                if '/q' in msgSend:
+                    print("Exiting...")
+                    chatConnection.sock.close()
+                    break
