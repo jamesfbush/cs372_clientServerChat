@@ -95,11 +95,11 @@ class MySocket:
             ['UDP is a \"fire and forget\" type of service [T/F]:\n',['true','t']],
             ['Mobile phones operate at network core [T/F]\n',['false','f']],
             ['At the transport layer, what is the payload?\
-                \n1. application data\n2. transport data',['1','application data']],
+                \n\n1. application data\n2. transport data',['1','application data']],
             ['In the Internet protocol stack, the Application Layer is responsible for assembling user data to be sent [T/F]',['true','t']],
             ['If I were to send information into the internet with your IP address listed as the sender IP, I would be:\
-                \n1. executing DDoS\n2. spoofing',['2','spoof','spoofing']],
-            [' A paired IP address and port number is called a:\n1. router\n2. socket',['2','socket']],
+                \n\n1. executing DDoS\n2. spoofing',['2','spoof','spoofing']],
+            [' A paired IP address and port number is called a:\n\n1. router\n2. socket',['2','socket']],
             ['In a ______ architecture, one host is always on, and other hosts may connect\
                 and be continually serviced by this first host.\
                     \n1. hybrid\n2. client-server\n3. peer-to-peer',['2', 'client-server']]      
@@ -134,6 +134,12 @@ class MySocket:
             # stop if requested 
             if answer == "/stop":
                 break
+
+            # still honor request to quit chat with /q
+            if answer == "/q":
+                print("Exiting...")
+                chatConnection.sock.close()
+                exit()
 
             # check substantive answer, generate appropriate feedback 
             elif answer in answers:
