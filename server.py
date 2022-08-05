@@ -3,11 +3,17 @@
 # Description:  Implementation of server-client chat per instructions.
 # Sources:      https://docs.python.org/3/howto/sockets.html
 #               https://realpython.com/python-sockets/
+#               https://www.geeksforgeeks.org/python-convert-string-to-bytes/
+#               https://www.geeksforgeeks.org/print-colors-python-terminal/ 
+
 
 from socket import *
 import random
 
 class MySocket:
+    """Class establishes chat connection depending on passed role, i.e.,
+    ('client'/'server').
+    """
 
     def __init__(self, role=None, host='localhost',port=12000):
 
@@ -42,8 +48,7 @@ class MySocket:
             totalsent += sent
 
     def receiveMsg(self):
-        """Receive string message by chunks. Error if connection broke. 
-        """
+        """Receive string message by chunks. Error if connection broken."""
         chunks = []
         newChunks = []
         bytesRecd = 0
@@ -88,8 +93,8 @@ class MySocket:
         return f"\033[{colors[color]}m{string}\033[00m"
 
     def networkingTriviaQA(self):
-        """When called, return random question and possible answers from bank.
-        """
+        """When called, return random question and possible answers from bank."""
+
         questionAnsBank = [ 
             ['TCP is a connection-oriented service [T/F]\n',['true','t']],
             ['UDP is a \"fire and forget\" type of service [T/F]:\n',['true','t']],
